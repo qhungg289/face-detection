@@ -4,6 +4,7 @@ import * as faceapi from "face-api.js";
 // https://translate.google.com.vn/translate_tts?ie=UTF-8&q=xin+ch%C3%A0o&tl=vi&client=tw-ob
 
 const modelsPath = "/models";
+
 const translatedExpressionsName = {
 	neutral: "Bình thường",
 	surprised: "Ngạc nhiên",
@@ -14,44 +15,52 @@ const translatedExpressionsName = {
 	fearful: "Sợ hãi",
 };
 
-function App() {
-	const videoInputRef = useRef(null);
-	const canvasRef = useRef(null);
-
-	function loadModels() {
-		Promise.all([
+async function loadModels() {
+	try {
+		await Promise.all([
 			faceapi.nets.tinyFaceDetector.loadFromUri(modelsPath),
 			faceapi.nets.faceLandmark68TinyNet.loadFromUri(modelsPath),
 			faceapi.nets.ageGenderNet.loadFromUri(modelsPath),
 			faceapi.nets.faceExpressionNet.loadFromUri(modelsPath),
-		]).then(() => {
-			console.log(faceapi.nets);
-		});
+		]);
+	} catch (error) {
+		console.error(error);
+	}
+}
+
+async function getCameraStream() {
+	let stream = null;
+
+	try {
+		stream = await navigator.mediaDevices.getUserMedia({ video: true });
+	} catch (error) {
+		console.error(error);
 	}
 
-	async function getCameraStream() {
-		let stream = null;
+	return stream;
+}
 
-		try {
-			stream = await navigator.mediaDevices.getUserMedia({ video: true });
-		} catch (error) {
-			console.error(error);
-		}
+async function detectFacesFromInput(input) {
+	let detections = null;
 
-		return stream;
-	}
-
-	async function detectFacesFromInput(input) {
-		const detections = await faceapi
+	try {
+		detections = await faceapi
 			.detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
 			.withFaceLandmarks(true)
 			.withFaceExpressions()
 			.withAgeAndGender();
-
-		return detections;
+	} catch (error) {
+		console.error(error);
 	}
 
-	function drawBoxes(detections) {
+	return detections;
+}
+
+function App() {
+	const videoInputRef = useRef(null);
+	const canvasRef = useRef(null);
+
+	function drawDetectionBoxes(detections) {
 		const displaySize = {
 			width: videoInputRef.current.videoWidth,
 			height: videoInputRef.current.videoHeight,
@@ -63,7 +72,9 @@ function App() {
 
 		faceapi.draw.drawDetections(canvasRef.current, resizedDetections);
 		faceapi.draw.drawFaceLandmarks(canvasRef.current, resizedDetections);
+	}
 
+	function drawTextBoxes(detections) {
 		detections.forEach((d) => {
 			const text = new faceapi.draw.DrawTextField(
 				[
@@ -78,24 +89,21 @@ function App() {
 				{ x: d.detection.box.right, y: d.detection.box.y },
 				{ anchorPosition: "BOTTOM_RIGHT" },
 			);
+
 			text.draw(canvasRef.current);
 		});
 	}
 
 	useEffect(() => {
-		if (!videoInputRef.current) {
-			return;
-		}
-
-		loadModels();
-
-		getCameraStream().then((stream) => {
-			videoInputRef.current.srcObject = stream;
-		});
+		(async () => {
+			await loadModels();
+			videoInputRef.current.srcObject = await getCameraStream();
+		})();
 
 		const interval = setInterval(() => {
 			detectFacesFromInput(videoInputRef.current).then((detections) => {
-				drawBoxes(detections);
+				drawDetectionBoxes(detections);
+				drawTextBoxes(detections);
 			});
 		}, 1000);
 
@@ -106,23 +114,18 @@ function App() {
 
 	return (
 		<div className="h-full flex flex-col items-center justify-center gap-8">
-			<div className="mx-4">
-				<div className="flex flex-col items-center gap-4 bg-white p-4 border border-gray-200 rounded-xl relative shadow-lg">
-					<div className="relative w-fit">
-						<video
-							ref={videoInputRef}
-							autoPlay
-							className="rounded-lg shadow-lg"
-						></video>
-						<canvas
-							ref={canvasRef}
-							className="w-full absolute inset-0"
-						></canvas>
-					</div>
-					<p className="text-gray-500 bg-gray-100 shadow-inner px-4 py-1 rounded-full">
-						Nhận diện khuôn mặt
-					</p>
+			<div className="flex flex-col items-center gap-4 bg-white p-4 mx-4 border border-gray-200 rounded-xl relative shadow-lg">
+				<div className="relative w-fit">
+					<video
+						ref={videoInputRef}
+						autoPlay
+						className="rounded-lg shadow-inner"
+					></video>
+					<canvas ref={canvasRef} className="w-full absolute inset-0"></canvas>
 				</div>
+				<p className="text-gray-500 font-medium bg-gray-200 shadow-inner px-4 py-1 rounded-full">
+					Nhận diện khuôn mặt
+				</p>
 			</div>
 		</div>
 	);
