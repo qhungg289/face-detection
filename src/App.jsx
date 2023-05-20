@@ -119,7 +119,9 @@ function App() {
 							className="w-full absolute inset-0"
 						></canvas>
 					</div>
-					<p className="text-lg text-gray-500">Nhận diện khuôn mặt</p>
+					<p className="text-gray-500 bg-gray-100 shadow-inner px-4 py-1 rounded-full">
+						Nhận diện khuôn mặt
+					</p>
 				</div>
 			</div>
 		</div>
