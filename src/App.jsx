@@ -4,7 +4,7 @@ import { Toaster, toast } from "sonner";
 
 // https://translate.google.com.vn/translate_tts?ie=UTF-8&q=xin+ch%C3%A0o&tl=vi&client=tw-ob
 
-const modelsPath = "/models";
+const MODELS_PATH = "/models";
 
 const translatedExpressionsName = {
 	neutral: "Bình thường",
@@ -19,10 +19,10 @@ const translatedExpressionsName = {
 async function loadModels() {
 	try {
 		await Promise.all([
-			faceapi.nets.tinyFaceDetector.loadFromUri(modelsPath),
-			faceapi.nets.faceLandmark68TinyNet.loadFromUri(modelsPath),
-			faceapi.nets.ageGenderNet.loadFromUri(modelsPath),
-			faceapi.nets.faceExpressionNet.loadFromUri(modelsPath),
+			faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_PATH),
+			faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_PATH),
+			faceapi.nets.ageGenderNet.loadFromUri(MODELS_PATH),
+			faceapi.nets.faceExpressionNet.loadFromUri(MODELS_PATH),
 		]);
 	} catch (error) {
 		console.error(error.message);
