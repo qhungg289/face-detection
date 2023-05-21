@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 
 // https://translate.google.com.vn/translate_tts?ie=UTF-8&q=xin+ch%C3%A0o&tl=vi&client=tw-ob
@@ -59,6 +59,7 @@ async function detectFacesFromInput(input) {
 function App() {
 	const videoInputRef = useRef(null);
 	const canvasRef = useRef(null);
+	const [isLoading, setIsLoading] = useState(true);
 
 	function drawDetectionBoxes(detections) {
 		const displaySize = {
@@ -98,6 +99,7 @@ function App() {
 		(async () => {
 			await loadModels();
 			videoInputRef.current.srcObject = await getCameraStream();
+			setIsLoading(false);
 		})();
 
 		const interval = setInterval(() => {
@@ -113,17 +115,27 @@ function App() {
 	}, []);
 
 	return (
-		<div className="h-full flex flex-col items-center justify-center gap-8">
-			<div className="flex flex-col items-center gap-4 bg-white p-4 mx-4 border border-gray-200 rounded-xl relative shadow-lg">
+		<div className="h-full flex flex-col items-center justify-center">
+			<div
+				className="flex flex-col items-center gap-4 bg-white p-4 mx-4 border border-gray-200 rounded-xl relative shadow-lg"
+				id="card"
+			>
 				<div className="relative w-fit">
 					<video
 						ref={videoInputRef}
 						autoPlay
-						className="rounded-lg shadow-inner"
+						className={`${
+							isLoading ? "hidden" : "block"
+						} rounded-lg shadow-inner bg-white border border-gray-200`}
 					></video>
 					<canvas ref={canvasRef} className="w-full absolute inset-0"></canvas>
+					{isLoading && (
+						<div className="rounded-lg shadow-inner bg-gray-200 border border-gray-200 aspect-[4/3] w-72 md:w-[40rem] animate-pulse flex items-center justify-center text-gray-500">
+							<p>Đang chuẩn bị...</p>
+						</div>
+					)}
 				</div>
-				<p className="text-gray-500 font-medium bg-gray-200 shadow-inner px-4 py-1 rounded-full">
+				<p className="text-gray-500 font-medium bg-gray-100 shadow-inner px-4 py-1 rounded-full">
 					Nhận diện khuôn mặt
 				</p>
 			</div>
