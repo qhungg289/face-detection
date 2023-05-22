@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import { Toaster, toast } from "sonner";
+import Spinner from "./components/Spinner";
 
 // https://translate.google.com.vn/translate_tts?ie=UTF-8&q=xin+ch%C3%A0o&tl=vi&client=tw-ob
 
@@ -154,7 +155,8 @@ function App() {
 							} w-full absolute inset-0`}
 						></canvas>
 						{isLoading && (
-							<div className="rounded-lg shadow-inner bg-gray-200 border border-gray-200 aspect-[4/3] w-72 md:w-[40rem] animate-pulse flex items-center justify-center text-gray-500">
+							<div className="rounded-lg shadow-inner bg-gray-200 border border-gray-200 aspect-[4/3] w-72 md:w-[40rem] animate-pulse flex flex-col items-center justify-center gap-4 text-gray-500">
+								<Spinner />
 								<p>Đang chuẩn bị...</p>
 							</div>
 						)}
