@@ -113,6 +113,10 @@ function App() {
 			}
 		})();
 
+		window.addEventListener("dblclick", () => {
+			window.close();
+		});
+
 		const interval = setInterval(() => {
 			detectFacesFromInput(videoInputRef.current)
 				.then((detections) => {
@@ -126,6 +130,9 @@ function App() {
 
 		return () => {
 			clearInterval(interval);
+			window.removeEventListener("dblclick", () => {
+				window.close();
+			});
 		};
 	}, []);
 
