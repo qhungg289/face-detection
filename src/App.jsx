@@ -198,6 +198,11 @@ function App() {
 					)}
 				</div>
 			</div>
+			{textToSpeech && (
+				<div className="absolute inset-x-0 bottom-4 mx-auto p-4 w-fit bg-gray-950/70 text-white rounded-md">
+					{textToSpeech}
+				</div>
+			)}
 		</>
 	);
 }
