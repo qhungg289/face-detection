@@ -138,32 +138,25 @@ function App() {
 	return (
 		<>
 			<Toaster richColors />
-			<div className="h-full flex flex-col items-center justify-center">
-				<div className="flex flex-col items-center gap-4 bg-white p-4 mx-4 border border-gray-200 rounded-xl relative shadow-lg">
-					<div className="relative w-fit">
-						<video
-							ref={videoInputRef}
-							autoPlay
-							className={`${
-								isLoading ? "hidden" : "block"
-							} rounded-lg shadow-inner bg-white border border-gray-200`}
-						></video>
-						<canvas
-							ref={canvasRef}
-							className={`${
-								isLoading ? "hidden" : "block"
-							} w-full absolute inset-0`}
-						></canvas>
-						{isLoading && (
-							<div className="rounded-lg shadow-inner bg-gray-200 border border-gray-200 aspect-[4/3] w-72 md:w-[40rem] animate-pulse flex flex-col items-center justify-center gap-4 text-gray-500">
-								<Spinner />
-								<p>Đang chuẩn bị...</p>
-							</div>
-						)}
-					</div>
-					<p className="text-gray-500 font-medium bg-gray-100 shadow-inner px-4 py-1 rounded-full">
-						Nhận diện khuôn mặt
-					</p>
+			<div className="h-full grid items-center content-center overflow-hidden">
+				<div className="relative">
+					<video
+						ref={videoInputRef}
+						autoPlay
+						className={`${isLoading ? "hidden" : "block"} w-full`}
+					></video>
+					<canvas
+						ref={canvasRef}
+						className={`${
+							isLoading ? "hidden" : "block"
+						} absolute inset-0 w-full`}
+					></canvas>
+					{isLoading && (
+						<div className="rounded-lg shadow-inner bg-gray-200 border border-gray-200 w-full h-screen animate-pulse flex flex-col items-center justify-center gap-4 text-gray-500">
+							<Spinner />
+							<p>Đang chuẩn bị...</p>
+						</div>
+					)}
 				</div>
 			</div>
 		</>
