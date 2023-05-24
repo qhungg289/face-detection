@@ -3,8 +3,6 @@ import * as faceapi from "face-api.js";
 import { Toaster, toast } from "sonner";
 import Spinner from "./components/Spinner";
 
-// https://translate.google.com.vn/translate_tts?ie=UTF-8&q=xin+ch%C3%A0o&tl=vi&client=tw-ob
-
 const MODELS_PATH = "/models";
 
 const translatedExpressionsName = {
@@ -66,6 +64,7 @@ function App() {
 	const canvasRef = useRef(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [errors, setErrors] = useState(null);
+	const [textToSpeech, setTextToSpeech] = useState("");
 
 	function drawDetectionBoxes(detections) {
 		const displaySize = {
@@ -101,6 +100,21 @@ function App() {
 		});
 	}
 
+	function updateTextToSpeech(detections) {
+		let text = [];
+
+		detections.forEach((d) => {
+			const gender = d.gender == "male" ? "nam" : "nữ";
+			const age = Math.round(d.age);
+			const expression =
+				translatedExpressionsName[d.expressions.asSortedArray()[0].expression];
+
+			text.push(`Bạn ${gender}, ${age} tuổi, đang cảm thấy ${expression}`);
+		});
+
+		setTextToSpeech(text.join(". "));
+	}
+
 	useEffect(() => {
 		(async () => {
 			try {
@@ -122,6 +136,7 @@ function App() {
 				.then((detections) => {
 					drawDetectionBoxes(detections);
 					drawTextBoxes(detections);
+					updateTextToSpeech(detections);
 				})
 				.catch((e) => {
 					setErrors(e.message);
@@ -141,6 +156,21 @@ function App() {
 			toast.error(errors);
 		}
 	}, [errors]);
+
+	useEffect(() => {
+		let interval = null;
+
+		interval = setInterval(() => {
+			const msg = new SpeechSynthesisUtterance();
+			msg.text = textToSpeech;
+			msg.lang = "vi";
+			speechSynthesis.speak(msg);
+		}, 1000);
+
+		return () => {
+			clearInterval(interval);
+		};
+	}, [textToSpeech]);
 
 	return (
 		<>
