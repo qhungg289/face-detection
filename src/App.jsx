@@ -109,7 +109,9 @@ function App() {
 			const expression =
 				translatedExpressionsName[d.expressions.asSortedArray()[0].expression];
 
-			text.push(`Bạn ${gender}, ${age} tuổi, đang cảm thấy ${expression}`);
+			text.push(
+				`Bạn ${gender}, ${age} tuổi, đang cảm thấy ${expression.toLowerCase()}`,
+			);
 		});
 
 		setTextToSpeech(text.join(". "));
