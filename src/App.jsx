@@ -163,20 +163,17 @@ function App() {
 		let interval = null;
 
 		interval = setInterval(() => {
-			if (textToSpeech) {
-				const msg = new SpeechSynthesisUtterance();
-				msg.text = textToSpeech;
-				msg.lang = "vi";
-				speechSynthesis.speak(msg);
-				setTextToSpeech("");
-				console.log("speak");
-			}
-		}, 1000);
+			const msg = new SpeechSynthesisUtterance();
+			msg.text = textToSpeech;
+			msg.lang = "vi";
+			speechSynthesis.speak(msg);
+			console.log(speechSynthesis.speaking);
+		}, 1001);
 
 		return () => {
 			clearInterval(interval);
 		};
-	}, []);
+	}, [textToSpeech]);
 
 	return (
 		<>
