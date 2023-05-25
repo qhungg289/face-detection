@@ -163,16 +163,20 @@ function App() {
 		let interval = null;
 
 		interval = setInterval(() => {
-			const msg = new SpeechSynthesisUtterance();
-			msg.text = textToSpeech;
-			msg.lang = "vi";
-			speechSynthesis.speak(msg);
+			if (textToSpeech) {
+				const msg = new SpeechSynthesisUtterance();
+				msg.text = textToSpeech;
+				msg.lang = "vi";
+				speechSynthesis.speak(msg);
+				setTextToSpeech("");
+				console.log("speak");
+			}
 		}, 1000);
 
 		return () => {
 			clearInterval(interval);
 		};
-	}, [textToSpeech]);
+	}, []);
 
 	return (
 		<>
@@ -198,11 +202,6 @@ function App() {
 					)}
 				</div>
 			</div>
-			{textToSpeech && (
-				<div className="absolute inset-x-0 bottom-4 mx-auto p-4 w-fit bg-gray-950/70 text-white rounded-md">
-					{textToSpeech}
-				</div>
-			)}
 		</>
 	);
 }
