@@ -55,3 +55,7 @@ export async function detectFacesFromInput(input) {
 
 	return detections;
 }
+
+export function sleep(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
