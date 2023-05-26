@@ -2,16 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-    font-family: 'Source Code Pro', monospace;
-}
-
-@supports (font-variation-settings: normal) {
-    :root {
-        font-family: 'Source Code Pro', monospace;
-    }
-}
-
 .github-corner:hover .octo-arm {
     animation: octocat-wave 560ms ease-in-out;
 }
