@@ -2,62 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
 import { Toaster, toast } from "sonner";
 import Spinner from "./components/Spinner";
-
-const MODELS_PATH = "/models";
-
-const translatedExpressionsName = {
-	neutral: "Bình thường",
-	surprised: "Ngạc nhiên",
-	happy: "Hạnh phúc",
-	angry: "Tức giận",
-	disgusted: "Kinh tởm",
-	sad: "Buồn bã",
-	fearful: "Sợ hãi",
-};
-
-async function loadModels() {
-	try {
-		await Promise.all([
-			faceapi.nets.tinyFaceDetector.loadFromUri(MODELS_PATH),
-			faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODELS_PATH),
-			faceapi.nets.ageGenderNet.loadFromUri(MODELS_PATH),
-			faceapi.nets.faceExpressionNet.loadFromUri(MODELS_PATH),
-		]);
-	} catch (error) {
-		console.error(error.message);
-		throw error;
-	}
-}
-
-async function getCameraStream() {
-	let stream = null;
-
-	try {
-		stream = await navigator.mediaDevices.getUserMedia({ video: true });
-	} catch (error) {
-		console.error(error.message);
-		throw error;
-	}
-
-	return stream;
-}
-
-async function detectFacesFromInput(input) {
-	let detections = null;
-
-	try {
-		detections = await faceapi
-			.detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
-			.withFaceLandmarks(true)
-			.withFaceExpressions()
-			.withAgeAndGender();
-	} catch (error) {
-		console.error(error.message);
-		throw error;
-	}
-
-	return detections;
-}
+import {
+	translatedExpressionsName,
+	loadModels,
+	getCameraStream,
+	detectFacesFromInput,
+} from "./utils";
 
 function App() {
 	const videoInputRef = useRef(null);
@@ -86,11 +36,9 @@ function App() {
 				[
 					`Giới tính: ${d.gender == "male" ? "Nam" : "Nữ"}`,
 					`Tuổi: ${Math.round(d.age)}`,
-					`Cảm xúc: ${
-						translatedExpressionsName[
-							d.expressions.asSortedArray()[0].expression
-						]
-					}`,
+					`Cảm xúc: ${translatedExpressionsName.get(
+						d.expressions.asSortedArray()[0].expression,
+					)}`,
 				],
 				{ x: d.detection.box.right, y: d.detection.box.y },
 				{ anchorPosition: "BOTTOM_RIGHT" },
@@ -106,8 +54,9 @@ function App() {
 		detections.forEach((d) => {
 			const gender = d.gender == "male" ? "nam" : "nữ";
 			const age = Math.round(d.age);
-			const expression =
-				translatedExpressionsName[d.expressions.asSortedArray()[0].expression];
+			const expression = translatedExpressionsName.get(
+				d.expressions.asSortedArray()[0].expression,
+			);
 
 			text.push(
 				`Bạn ${gender}, ${age} tuổi, đang cảm thấy ${expression.toLowerCase()}`,
@@ -163,12 +112,14 @@ function App() {
 		let interval = null;
 
 		interval = setInterval(() => {
-			const msg = new SpeechSynthesisUtterance();
-			msg.text = textToSpeech;
-			msg.lang = "vi";
-			speechSynthesis.speak(msg);
-			console.log(speechSynthesis.speaking);
-		}, 1001);
+			if (!speechSynthesis.speaking && textToSpeech) {
+				const msg = new SpeechSynthesisUtterance();
+				msg.text = textToSpeech;
+				msg.lang = "vi";
+				speechSynthesis.speak(msg);
+				setTextToSpeech("");
+			}
+		}, 0);
 
 		return () => {
 			clearInterval(interval);
