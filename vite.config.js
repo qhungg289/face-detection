@@ -11,8 +11,7 @@ export default defineConfig({
 			devOptions: {
 				enabled: true,
 			},
-			includeAssets: ["favicon.ico", "models", "site.webmanifest"],
-			manifest: false,
+			includeAssets: ["favicon.ico", "models/*.json", "models/*"],
 		}),
 	],
 });
